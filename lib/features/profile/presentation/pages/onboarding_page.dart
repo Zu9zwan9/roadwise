@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../core/constants/app_constants.dart';
-import '../../../../core/themes/app_colors.dart';
-import '../widgets/animated_background.dart';
-import 'core/widgets/glassmorphic_container.dart';
+import 'package:roadwise/core/constants/app_constants.dart';
+import 'package:roadwise/core/themes/app_colors.dart';
+import 'package:roadwise/core/widgets/glassmorphic_container.dart';
+import 'package:roadwise/features/profile/presentation/models/onboarding_data.dart';
+import 'package:roadwise/widgets/animated_background.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -198,13 +198,15 @@ class _OnboardingPageState extends State<OnboardingPage>
                                           gradient: RadialGradient(
                                             colors: [
                                               page.color,
-                                              page.color.withOpacity(0.7),
+                                              page.color.withAlpha(
+                                                (0.7 * 255).round(),
+                                              ),
                                             ],
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: page.color.withOpacity(
-                                                0.3,
+                                              color: page.color.withAlpha(
+                                                (0.3 * 255).round(),
                                               ),
                                               blurRadius: 20,
                                               offset: const Offset(0, 10),
@@ -237,8 +239,8 @@ class _OnboardingPageState extends State<OnboardingPage>
                                         color: AppColors.white,
                                         shadows: [
                                           Shadow(
-                                            color: AppColors.black.withOpacity(
-                                              0.3,
+                                            color: AppColors.black.withAlpha(
+                                              (0.3 * 255).round(),
                                             ),
                                             offset: const Offset(0, 2),
                                             blurRadius: 4,
@@ -261,8 +263,8 @@ class _OnboardingPageState extends State<OnboardingPage>
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context).textTheme.bodyLarge
                                         ?.copyWith(
-                                          color: AppColors.white.withOpacity(
-                                            0.9,
+                                          color: AppColors.white.withAlpha(
+                                            (0.9 * 255).round(),
                                           ),
                                           height: 1.5,
                                         ),
@@ -295,7 +297,9 @@ class _OnboardingPageState extends State<OnboardingPage>
                             decoration: BoxDecoration(
                               color: _currentPage == index
                                   ? AppColors.white
-                                  : AppColors.white.withOpacity(0.4),
+                                  : AppColors.white.withAlpha(
+                                      (0.4 * 255).round(),
+                                    ),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -344,18 +348,4 @@ class _OnboardingPageState extends State<OnboardingPage>
       ),
     );
   }
-}
-
-class OnboardingData {
-  final String title;
-  final String description;
-  final IconData icon;
-  final Color color;
-
-  OnboardingData({
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.color,
-  });
 }

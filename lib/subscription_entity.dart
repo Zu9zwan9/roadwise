@@ -55,7 +55,69 @@ class SubscriptionEntity extends Equatable {
     required this.updatedAt,
   });
 
-  bool get isExpired => expiryDate != null && expiryDate!.isBefore(DateTime.now());
+  // Add this getter for compatibility
+  String get name => planName;
+
+  // Add this method for copyWith functionality
+  SubscriptionEntity copyWith({
+    int? id,
+    int? userId,
+    String? planId,
+    String? planName,
+    double? price,
+    String? currency,
+    String? billingPeriod,
+    DateTime? startDate,
+    DateTime? expiryDate,
+    bool? isActive,
+    bool? autoRenew,
+    String? transactionId,
+    String? receiptData,
+    String? platform,
+    List<String>? features,
+    int? maxOfflineDownloads,
+    int? maxLives,
+    bool? unlimitedQuizRetries,
+    bool? adaptiveLearning,
+    bool? exclusiveBadges,
+    bool? prioritySupport,
+    bool? adFree,
+    DateTime? lastVerified,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return SubscriptionEntity(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      planId: planId ?? this.planId,
+      planName: planName ?? this.planName,
+      price: price ?? this.price,
+      currency: currency ?? this.currency,
+      billingPeriod: billingPeriod ?? this.billingPeriod,
+      startDate: startDate ?? this.startDate,
+      expiryDate: expiryDate ?? this.expiryDate,
+      isActive: isActive ?? this.isActive,
+      autoRenew: autoRenew ?? this.autoRenew,
+      transactionId: transactionId ?? this.transactionId,
+      receiptData: receiptData ?? this.receiptData,
+      platform: platform ?? this.platform,
+      features: features ?? this.features,
+      maxOfflineDownloads: maxOfflineDownloads ?? this.maxOfflineDownloads,
+      maxLives: maxLives ?? this.maxLives,
+      unlimitedQuizRetries: unlimitedQuizRetries ?? this.unlimitedQuizRetries,
+      adaptiveLearning: adaptiveLearning ?? this.adaptiveLearning,
+      exclusiveBadges: exclusiveBadges ?? this.exclusiveBadges,
+      prioritySupport: prioritySupport ?? this.prioritySupport,
+      adFree: adFree ?? this.adFree,
+      lastVerified: lastVerified ?? this.lastVerified,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  // ... rest of your class remains unchanged ...
+  bool get isExpired =>
+      expiryDate != null && expiryDate!.isBefore(DateTime.now());
   bool get isValid => isActive && !isExpired;
   bool get isFree => planId == 'free';
   bool get isPlus => planId == 'plus';
@@ -92,7 +154,6 @@ class SubscriptionEntity extends Equatable {
   String get priceText {
     if (price == 0) return 'Free';
     if (isLifetime) return '\$${price.toStringAsFixed(2)} (Lifetime)';
-    
     final periodText = billingPeriod == 'monthly' ? '/month' : '/year';
     return '\$${price.toStringAsFixed(2)}$periodText';
   }
@@ -112,10 +173,8 @@ class SubscriptionEntity extends Equatable {
 
   String? get expiryText {
     if (expiryDate == null || isLifetime) return null;
-    
     final timeLeft = timeUntilExpiry;
     if (timeLeft == null || timeLeft == Duration.zero) return 'Expired';
-    
     if (timeLeft.inDays > 0) {
       return 'Expires in ${timeLeft.inDays} days';
     } else if (timeLeft.inHours > 0) {
@@ -131,31 +190,30 @@ class SubscriptionEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        planId,
-        planName,
-        price,
-        currency,
-        billingPeriod,
-        startDate,
-        expiryDate,
-        isActive,
-        autoRenew,
-        transactionId,
-        receiptData,
-        platform,
-        features,
-        maxOfflineDownloads,
-        maxLives,
-        unlimitedQuizRetries,
-        adaptiveLearning,
-        exclusiveBadges,
-        prioritySupport,
-        adFree,
-        lastVerified,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    userId,
+    planId,
+    planName,
+    price,
+    currency,
+    billingPeriod,
+    startDate,
+    expiryDate,
+    isActive,
+    autoRenew,
+    transactionId,
+    receiptData,
+    platform,
+    features,
+    maxOfflineDownloads,
+    maxLives,
+    unlimitedQuizRetries,
+    adaptiveLearning,
+    exclusiveBadges,
+    prioritySupport,
+    adFree,
+    lastVerified,
+    createdAt,
+    updatedAt,
+  ];
 }
-

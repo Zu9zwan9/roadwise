@@ -259,54 +259,6 @@ class _LessonsPageState extends State<LessonsPage> {
           ],
         ),
       ),
-
-      // Bottom Navigation
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Colors.black12, width: 0.5)),
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: CupertinoColors.systemBlue,
-          unselectedItemColor: Colors.grey,
-          currentIndex: 1, // Lessons tab
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.house),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.book),
-              label: 'Lessons',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.car_detailed),
-              label: 'Practice',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.person),
-              label: 'Profile',
-            ),
-          ],
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                context.go('/home');
-                break;
-              case 1:
-                // Already on lessons
-                break;
-              case 2:
-                context.go('/practice');
-                break;
-              case 3:
-                context.go('/profile');
-                break;
-            }
-          },
-        ),
-      ),
     );
   }
 

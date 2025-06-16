@@ -8,12 +8,12 @@ class QuizResultPage extends StatelessWidget {
   final Duration timeSpent;
 
   const QuizResultPage({
-    Key? key,
+    super.key,
     required this.score,
     required this.totalQuestions,
     required this.correctAnswers,
     required this.timeSpent,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

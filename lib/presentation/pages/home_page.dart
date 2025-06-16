@@ -8,6 +8,7 @@ import 'package:roadwise/lesson_state.dart';
 import 'package:roadwise/presentation/widgets/lesson_card_widget.dart';
 
 import '../../core/themes/app_colors.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -134,22 +135,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                 ],
               ),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primaryBlue.withOpacity(0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfilePage(),
                     ),
-                  ],
-                ),
-                child: CircleAvatar(
-                  radius: 25,
-                  backgroundColor: Colors.transparent,
-                  child: Icon(Icons.person, color: AppColors.white, size: 28),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: AppColors.primaryGradient,
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryBlue.withOpacity(0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 25,
+                    backgroundColor: Colors.transparent,
+                    child: Icon(Icons.person, color: AppColors.white, size: 28),
+                  ),
                 ),
               ),
             ],

@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
@@ -6,6 +10,7 @@ import 'package:roadwise/data/models/subscription.dart';
 import 'package:roadwise/data/models/topic.dart';
 import 'package:roadwise/data/models/user.dart';
 import 'package:roadwise/data/models/user_progress.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/errors/exceptions.dart';
 import 'leaderboard_entry.dart';
@@ -15,8 +20,10 @@ import 'offline_package.dart';
 @lazySingleton
 class DatabaseService {
   Isar? _isarInstance;
-  User?
-  _loggedInUser; // Simple in-memory session, not persistent across app restarts
+  SharedPreferences? _prefs;
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  // Simple in-memory cache, persistent session stored in SharedPreferences and SecureStorage
+  User? _loggedInUser;
 
   DatabaseService();
 
@@ -40,6 +47,7 @@ class DatabaseService {
         directory: dir.path,
         name: 'roadwise_db',
       );
+      _prefs = await SharedPreferences.getInstance();
     } catch (e) {
       throw DatabaseException('Failed to initialize database: $e');
     }
@@ -121,18 +129,100 @@ class DatabaseService {
     return user.password == password;
   }
 
+  // Helper method to securely hash passwords
+  String _hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
+  // Helper method to securely store credentials
+  Future<void> _storeCredentials(String email, String password) async {
+    try {
+      await _secureStorage.write(key: 'user_email', value: email);
+      // Store hashed password for additional security
+      final hashedPassword = _hashPassword(password);
+      await _secureStorage.write(
+        key: 'user_password_hash',
+        value: hashedPassword,
+      );
+    } catch (e) {
+      throw DatabaseException('Failed to store credentials: $e');
+    }
+  }
+
+  // Helper method to retrieve stored credentials
+  Future<Map<String, String?>> _getStoredCredentials() async {
+    try {
+      final email = await _secureStorage.read(key: 'user_email');
+      final passwordHash = await _secureStorage.read(key: 'user_password_hash');
+      return {'email': email, 'passwordHash': passwordHash};
+    } catch (e) {
+      throw DatabaseException('Failed to retrieve credentials: $e');
+    }
+  }
+
+  // Helper method to clear stored credentials
+  Future<void> _clearStoredCredentials() async {
+    try {
+      await _secureStorage.delete(key: 'user_email');
+      await _secureStorage.delete(key: 'user_password_hash');
+    } catch (e) {
+      throw DatabaseException('Failed to clear credentials: $e');
+    }
+  }
+
   Future<void> setCurrentUserSession(User user) async {
-    // This is a simplistic in-memory session. For persistence, store user ID in SharedPreferences or a dedicated Isar collection.
+    // Cache in memory and persist user ID to SharedPreferences
     _loggedInUser = user;
+    await _prefs?.setInt('currentUserId', user.id);
+
+    // Store credentials securely if available
+    if (user.email.isNotEmpty && user.password.isNotEmpty) {
+      await _storeCredentials(user.email, user.password);
+    }
   }
 
   Future<void> clearCurrentUserSession() async {
     _loggedInUser = null;
+    await _prefs?.remove('currentUserId');
+    await _clearStoredCredentials();
   }
 
   Future<User?> getCurrentUser() async {
-    // This retrieves from the simplistic in-memory session.
-    return _loggedInUser;
+    // Retrieve from cache or SharedPreferences
+    if (_loggedInUser != null) return _loggedInUser;
+
+    // Try to get user by ID from SharedPreferences
+    final userId = _prefs?.getInt('currentUserId');
+    if (userId != null) {
+      final user = await getUser(userId);
+      if (user != null) {
+        _loggedInUser = user;
+        return user;
+      }
+    }
+
+    // If user not found by ID, try to authenticate with stored credentials
+    final credentials = await _getStoredCredentials();
+    final email = credentials['email'];
+    final passwordHash = credentials['passwordHash'];
+
+    if (email != null && passwordHash != null) {
+      final user = await findUserByEmail(email);
+      if (user != null) {
+        // Verify password hash matches
+        final storedPasswordHash = _hashPassword(user.password);
+        if (storedPasswordHash == passwordHash) {
+          _loggedInUser = user;
+          // Update user ID in SharedPreferences
+          await _prefs?.setInt('currentUserId', user.id);
+          return user;
+        }
+      }
+    }
+
+    return null;
   }
 
   Future<void> sendPasswordResetEmail({required String email}) async {

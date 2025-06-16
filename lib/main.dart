@@ -4,9 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roadwise/bloc/lesson_bloc.dart';
 import 'package:roadwise/core/themes/app_theme.dart';
 import 'package:roadwise/data/models/database_service.dart';
+import 'package:roadwise/data/models/injection.dart';
 import 'package:roadwise/features/auth/domain/usercases/auth_bloc.dart';
 import 'package:roadwise/features/auth/presentation/app_router.dart';
-import 'package:roadwise/injection.dart';
+
+import 'auth_event.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +28,13 @@ void main() async {
   // Initialize database by getting the instance from GetIt
   final dbService = getIt<DatabaseService>();
   await dbService.initialize();
+
+  // Check existing session
+  final authBloc = getIt<AuthBloc>();
+  authBloc.add(AuthCheckRequested());
+
+  // Initialize the router with the AuthBloc
+  AppRouter.initRouter(authBloc);
 
   runApp(const RoadWiseApp());
 }
