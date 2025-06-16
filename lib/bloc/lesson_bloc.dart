@@ -42,6 +42,7 @@ class LessonBloc extends Bloc<LessonEvent, LessonState> {
     on<LessonDownloadRequested>(_onLessonDownloadRequested);
     on<LessonSearchRequested>(_onLessonSearchRequested);
     on<LessonFilterRequested>(_onLessonFilterRequested);
+    on<LessonCategoriesLoadRequested>(_onLessonCategoriesLoadRequested);
   }
 
   Future<void> _onLessonLoadRequested(
@@ -254,5 +255,43 @@ class LessonBloc extends Bloc<LessonEvent, LessonState> {
         ),
       ),
     );
+  }
+
+  Future<void> _onLessonCategoriesLoadRequested(
+    LessonCategoriesLoadRequested event,
+    Emitter<LessonState> emit,
+  ) async {
+    // This event is intended to load or refresh categories.
+    // We use _getLessonsUseCase, assuming it's the source for categories.
+    // Default GetLessonsParams() should fetch all lessons and categories.
+    final result = await _getLessonsUseCase(const GetLessonsParams());
+
+    result.fold((failure) => emit(LessonError(message: failure.message)), (
+      newData,
+    ) {
+      final currentState = state;
+      if (currentState is LessonLoaded) {
+        // If lessons and potentially categories are already loaded,
+        // preserve existing lessons, selectedCategory, and searchQuery.
+        // Update only the categories list from the newData.
+        emit(
+          LessonLoaded(
+            lessons: currentState.lessons,
+            categories: newData.categories,
+            selectedCategory: currentState.selectedCategory,
+            searchQuery: currentState.searchQuery,
+          ),
+        );
+      } else {
+        // If the current state is not LessonLoaded (e.g., Initial, Loading, or Error),
+        // emit a new LessonLoaded state using data from this fetch.
+        emit(
+          LessonLoaded(
+            lessons: newData.lessons,
+            categories: newData.categories,
+          ),
+        );
+      }
+    });
   }
 }

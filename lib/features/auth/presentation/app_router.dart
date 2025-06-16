@@ -14,8 +14,6 @@ import 'package:roadwise/presentation/pages/home_page.dart';
 import 'package:roadwise/presentation/pages/settings_page.dart';
 import 'package:roadwise/presentation/pages/subscription_page.dart';
 
-import '../../../lessons_page.dart';
-
 class AppRouter {
   static const String welcome = '/welcome';
   static const String signIn = '/sign-in';

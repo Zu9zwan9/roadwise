@@ -108,7 +108,7 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            context.go('/home');
+            context.go('/lessons'); //lessons
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
